@@ -13,7 +13,7 @@ fi
 
 # set global variables
 CURL="curl -s -L --connect-timeout 3"
-CHECKFILE="/tmp/$(basename ${0})"
+CHECKFILE="/tmp/$(basename ${0})_$(whoami)"
 RUNS="3"
 
 
@@ -42,9 +42,9 @@ function check_file() {
   # create alert message
   if [[ "$NEW" -eq ${RUNS} ]]; then
     if [[ "${SITE}" != "${i}" ]]; then
-      MSG="${MSG}\n${SITE} - ${CALL}"
+      MSG+="\n${SITE} - ${CALL}"
     else
-      MSG="${MSG}\n${SITE}"
+      MSG+="\n${SITE}"
     fi
   fi
 }
