@@ -12,9 +12,11 @@ fi
 
 
 # set global variables
-CURL="curl -s -L --connect-timeout 3"
+CURL="curl -s -L --connect-timeout 3 -m 6"
 CHECKFILE="/tmp/$(basename ${0})_$(whoami)"
-RUNS="3"
+
+ALERT1="3"
+ALERT2="10"
 
 
 # check checkfile
@@ -40,11 +42,17 @@ function check_file() {
   sed -i "s/${CALL//\//\\/} ${NUM}/${CALL//\//\\/} ${NEW}/" ${CHECKFILE}
 
   # create alert message
-  if [[ "$NEW" -eq ${RUNS} ]]; then
+  if [[ "${NEW}" -eq ${ALERT1} ]]; then
     if [[ "${SITE}" != "${i}" ]]; then
-      MSG+="\n${SITE} - ${CALL}"
+      MSGALRT1+="\n${SITE} - ${CALL}"
     else
-      MSG+="\n${SITE}"
+      MSGALRT1+="\n${SITE}"
+    fi
+  elif [[ "${NEW}" -eq ${ALERT2} ]]; then
+    if [[ "${SITE}" != "${i}" ]]; then
+      MSGALRT2+="\n${SITE} - ${CALL}"
+    else
+      MSGALRT2+="\n${SITE}"
     fi
   fi
 }
@@ -86,16 +94,35 @@ for i in ${@}; do
 
     # erase notifications if found
     else
+      # prepare OK message
+      if grep -q "${CALL}" ${CHECKFILE}; then
+        if [[ "${SITE}" != "${i}" ]]; then
+          MSGRCVR+="\n${SITE} - ${CALL}"
+        else
+          MSGRCVR+="\n${SITE}"
+        fi
+      fi
+
       sed -i "/${CALL//\//\\/}/d" ${CHECKFILE}
     fi
   fi
 done
 
 
-# output alert message
-if [[ ! -z "${MSG}" ]]; then
-  echo -e "HTTP alerts:\n${MSG}"
+# output recovery messages
+if [[ ! -z "${MSGRCVR}" ]]; then
+  echo -e "HTTP recovery:\n${MSGRCVR}"
 fi
+
+
+# output alert messages
+if [[ ! -z "${MSGALRT1}" ]]; then
+  echo -e "HTTP first alert:\n${MSGALRT1}"
+fi
+if [[ ! -z "${MSGALRT2}" ]]; then
+  echo -e "HTTP second alert:\n${MSGALRT2}"
+fi
+
 
 # exit
 exit $?
