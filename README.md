@@ -2,6 +2,8 @@
 
 A collection of simple scripts intended for daily usage
 
+1. [check-essid.sh](check-essid.sh) *Get connected wifi network on system*
+   * Show the wifi network the system is connected to
 1. [check-ip.sh](check-ip.sh) *Get IPv4 addresses on system*
    * Show all network interfaces except loopback
    * Determine if interface has IP or not
